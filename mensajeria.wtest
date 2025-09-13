@@ -1,8 +1,113 @@
 import mensajeria.*
 import mensajeros.*
 
+describe "2 " {
+  test "Contratar un mensajero" {
+    mensajeria.contratarMensajero(neo)
+    assert.equals(1, mensajeria.mensajeros().size())
+  }
+  
+  test "Despedir a un mensajero" {
+    mensajeria.contratarMensajero(neo)
+    assert.equals(1, mensajeria.mensajeros().size())
+    mensajeria.despedirMensajero(neo)
+    assert.equals(0, mensajeria.mensajeros().size())
+  }
+  
+  test "Despedir a todos los mensajeros" {
+    mensajeria.contratarMensajero(neo)
+    mensajeria.contratarMensajero(morfeo)
+    assert.equals(2, mensajeria.mensajeros().size())
+    mensajeria.despedirTodos()
+    assert.equals(0, mensajeria.mensajeros().size())
+  }
+  
+  test "Chequear si la mensajeria es grande" {
+    mensajeria.contratarMensajero(neo)
+    assert.notThat(mensajeria.esMensajeriaGrande())
+    mensajeria.contratarMensajero(morfeo)
+    mensajeria.contratarMensajero(trinity)
+    assert.that(mensajeria.esMensajeriaGrande())
+  }
+  
+  test "Consultar si un paquete puede ser entregado por el primer empleado de la empresa" {
+    mensajeria.contratarMensajero(morfeo)
+    mensajeria.contratarMensajero(trinity)
+    assert.notThat(mensajeria.puedeSerEntregadoPorPrimerEmpleado())
+    paquete.pagar()
+    assert.that(mensajeria.puedeSerEntregadoPorPrimerEmpleado())
+  }
+  
+  test "Saber el peso del ultimo mensajero" {
+    mensajeria.contratarMensajero(morfeo)
+    mensajeria.contratarMensajero(trinity)
+    assert.equals(900, mensajeria.pesoUltimoMensajero())
+  }
+}
 
-describe "2 " {}
-
-
-describe "3 " {}
+describe "3 " {
+  test "paquete puede ser entregado por la empresa" {
+    mensajeria.contratarMensajero(neo)
+    mensajeria.contratarMensajero(morfeo)
+    mensajeria.contratarMensajero(trinity)
+    assert.notThat(mensajeria.puedeSerEntregadoPorLaEmpresa(paquete))
+    paquete.pagar()
+    assert.that(mensajeria.puedeSerEntregadoPorLaEmpresa(paquete))
+  }
+  
+  test "obtener todos los mensajeros que pueden llevar un paquete dado." {
+    paquete.destino(matrix)
+    paquete.pagar()
+    mensajeria.contratarMensajero(neo)
+    mensajeria.contratarMensajero(morfeo)
+    assert.equals([neo], mensajeria.mensajerosQuePuedenLlevar(paquete))
+  }
+  
+  test "saber si una mensajería tiene sobrepeso" {
+    mensajeria.contratarMensajero(neo)
+    mensajeria.contratarMensajero(morfeo)
+    assert.notThat(mensajeria.tieneSobrepeso())
+    camion.acoplados(5)
+    mensajeria.contratarMensajero(trinity)
+    assert.that(mensajeria.tieneSobrepeso())
+  }
+  
+  test "hacer que empresa envie un paquete" {
+    mensajeria.contratarMensajero(morfeo)
+    paquete.destino(matrix)
+    mensajeria.enviar(paquete)
+    assert.equals([paquete], mensajeria.pendientes())
+    mensajeria.contratarMensajero(neo)
+    mensajeria.contratarMensajero(trinity)
+    paquete.pagar()
+    mensajeria.enviar(paquete)
+    assert.equals(50, mensajeria.facturacion())
+  }
+  
+  test "enviar conjunto de paquetes y conocer facturacion de la empresa" {
+    mensajeria.contratarMensajero(neo)
+    mensajeria.contratarMensajero(morfeo)
+    mensajeria.contratarMensajero(trinity)
+    paquete.pagar()
+    paquetonViajero.pagar(100)
+    paquetonViajero.añadirDestino(puente)
+    paquetonViajero.añadirDestino(matrix)
+    mensajeria.enviarTodos([paquetonViajero, paquete])
+    assert.equals(150, mensajeria.facturacion())
+  }
+  
+  test "encontrar paquete pendiente mas caro y enviarlo" {
+    mensajeria.enviar(paquete)
+    mensajeria.enviar(paquetonViajero)
+    
+    paquete.pagar()
+    paquetonViajero.pagar(100)
+    paquetonViajero.añadirDestino(puente)
+    paquetonViajero.añadirDestino(matrix)
+    
+    mensajeria.contratarMensajero(neo)
+    
+    mensajeria.enviarPendienteMasCaro()
+    assert.equals([paquete], mensajeria.pendientes())
+  }
+}
